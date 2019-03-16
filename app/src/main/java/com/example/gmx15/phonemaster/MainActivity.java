@@ -22,21 +22,34 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import com.huawei.hiai.asr.AsrConstants;
+import com.huawei.hiai.asr.AsrError;
+import com.huawei.hiai.asr.AsrListener;
+import com.huawei.hiai.asr.AsrRecognizer;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import static android.support.v4.app.ActivityCompat.startActivityForResult;
 
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "AsrActivity";
     static private TextToSpeech mTextToSpeech=null;
 
     public static TextToSpeech getmTextToSpeech() {
         return MainActivity.mTextToSpeech;
     }
 
+    private AsrRecognizer asrRecognizer = null;
+    private HWAsrListener asrListener;
+    //HUAWEI ASR引擎参数
+    private HuaweiAsrModel huaweiModel;
+    private boolean isSupportHwAsr = true;
 
-    private static final String TAG = "VoiceRecognition";
-    private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
-
+    private long startTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,32 +62,22 @@ public class MainActivity extends AppCompatActivity {
 
 
         fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+              @Override
+              public void onClick(View v) {
+                  if (isSupportHwAsr) {
+                      Intent intent = new Intent();
+                      intent.putExtra(AsrConstants.ASR_VAD_FRONT_WAIT_MS, 10000);
+                      //intent.putExtra(AsrConstants.ASR_VAD_END_WAIT_MS, 30000);
+                      //intent.putExtra(AsrConstants.ASR_RESULT_TIME_WAIT_MS, 30000);
+                      //intent.putExtra(AsrConstants.ASR_TIMEOUT_THRESHOLD_MS, 1000);
 
-                    // Display an hint to the user about what he should say.
-                    intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "请说标准普通话");//注意不要硬编码
-
-                    // Given an hint to the recognizer about what the user is going to say
-                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-
-                    // Specify how many results you want to receive. The results will be sorted
-                    // where the first result is the one with   higher confidence.
-                    intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);//通常情况下，第一个结果是最准确的。
-
-                    try {
-                        startActivityForResult(intent, VOICE_RECOGNITION_REQUEST_CODE);
-                    } catch (ActivityNotFoundException a) {
-                        Toast t = Toast.makeText(getApplicationContext(),
-                                "Opps! Your device doesn't support Speech to Text",
-                                Toast.LENGTH_SHORT);
-                        t.show();
-                    }
-                }
-            });
-
+                      huaweiModel.startListening(intent);
+                      Toast.makeText(MainActivity.this, "识别中....", Toast.LENGTH_LONG).show();
+                  } else {
+                      Toast.makeText(MainActivity.this, "该设备不支持华为语音引擎！", Toast.LENGTH_SHORT).show();
+                  }
+              }
+          });
 
 
         //实例并初始化TTS对象
@@ -91,26 +94,28 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-    }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
-            // Fill the list view with the strings the recognizer thought it could have heard
-            ArrayList<String> matches = data.getStringArrayListExtra(
-                    RecognizerIntent.EXTRA_RESULTS);
-            StringBuilder stringBuilder = new StringBuilder();
-            int Size = matches.size();
-            for(int i=0;i<Size;++i)
-            {
-                stringBuilder.append(matches.get(i));
-                stringBuilder.append("\n");
-            }
-            Log.i("Voice:", stringBuilder.toString());
+        //判断设备是否支持华为语音引擎
+        if (HuaweiAsrModel.isSupportAsr(this)) {
+            //初始化华为语音引擎
+            initHuaweiAsr();
+        } else {
+            Toast.makeText(this, "该设备不支持华为语音引擎！", Toast.LENGTH_SHORT).show();
         }
-
-        super.onActivityResult(requestCode, resultCode, data);
     }
+
+    //初始化华为语音引擎
+    private void initHuaweiAsr() {
+        if (asrRecognizer == null) {
+            asrRecognizer = AsrRecognizer.createAsrRecognizer(this);
+            huaweiModel = new HuaweiAsrModel(this, asrRecognizer);
+        }
+        Intent initIntent = new Intent();
+        initIntent.putExtra(AsrConstants.ASR_AUDIO_SRC_TYPE, AsrConstants.ASR_SRC_TYPE_RECORD);
+        asrListener = new HWAsrListener();
+        asrRecognizer.init(initIntent, asrListener);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -132,5 +137,111 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        huaweiModel.cancelListening();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        huaweiModel.destroyEngine();
+    }
+
+    //华为语音监听回调
+    private class HWAsrListener implements AsrListener {
+
+        @Override
+        public void onInit(Bundle params) {
+            Log.d(TAG, "onInit() called with: params = [" + params + "]");
+        }
+
+        @Override
+        public void onBeginningOfSpeech() {
+            Log.d(TAG, "onBeginningOfSpeech() called");
+        }
+
+        @Override
+        public void onRmsChanged(float rmsdB) {
+            Log.d(TAG, "onRmsChanged() called with: rmsdB = [" + rmsdB + "]");
+        }
+
+        @Override
+        public void onBufferReceived(byte[] buffer) {
+            Log.i(TAG, "onBufferReceived() called with: buffer = [" + buffer + "]");
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+            Log.d(TAG, "onEndOfSpeech: ");
+            startTime = System.currentTimeMillis();
+        }
+
+        @Override
+        public void onError(int error) {
+            Log.d(TAG, "onError() called with: error = [" + error + "]");
+            if (error == AsrError.ERROR_SERVER_INSUFFICIENT_PERMISSIONS) {
+                Log.d(TAG, "insufficient permission");
+                if (asrRecognizer != null) {
+                    asrRecognizer.startPermissionRequestForEngine();
+                }
+            }
+        }
+
+        @Override
+        public void onResults(Bundle results) {
+            Log.d(TAG, "onResults() called with: results = [" + results + "]");
+            long costTime = System.currentTimeMillis() - startTime;
+            String finalResult = getOnResult(results, AsrConstants.RESULTS_RECOGNITION);
+            finalResult = finalResult.replaceAll("[,，。]", "");
+
+            Log.d(TAG, "onResults() called with: final_results = [" + finalResult + "]");
+            huaweiModel.stopListening();
+        }
+
+        @Override
+        public void onPartialResults(Bundle partialResults) {
+            Log.d(TAG, "onPartialResults() called with: partialResults = [" + partialResults + "]");
+            ;
+        }
+
+        @Override
+        public void onEnd() {
+
+        }
+
+        private String getOnResult(Bundle partialResults, String key) {
+            Log.d(TAG, "getOnResult() called with: getOnResult = [" + partialResults + "]");
+            String json = partialResults.getString(key);
+            final StringBuffer sb = new StringBuffer();
+            try {
+                JSONObject result = new JSONObject(json);
+                JSONArray items = result.getJSONArray("result");
+                for (int i = 0; i < items.length(); i++) {
+                    String word = items.getJSONObject(i).getString("word");
+                    double confidences = items.getJSONObject(i).getDouble("confidence");
+                    sb.append(word);
+                    Log.d(TAG, "asr_engine: result str " + word);
+                    Log.d(TAG, "asr_engine: confidence " + String.valueOf(confidences));
+                }
+                Log.d(TAG, "getOnResult: " + sb.toString());
+            } catch (JSONException exp) {
+                Log.w(TAG, "JSONException: " + exp.toString());
+            }
+            return sb.toString();
+        }
+
+        @Override
+        public void onEvent(int eventType, Bundle params) {
+            Log.d(TAG, "onEvent() called with: eventType = [" + eventType + "], params = [" + params + "]");
+        }
+
+        @Override
+        public void onLexiconUpdated(String s, int i) {
+
+        }
     }
 }
