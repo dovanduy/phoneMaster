@@ -1,9 +1,8 @@
 package com.example.gmx15.phonemaster;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -12,14 +11,9 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-import android.widget.TextView;
 
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import java.util.List;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.Locale;
 
 import com.huawei.hiai.asr.AsrConstants;
@@ -30,8 +24,6 @@ import com.huawei.hiai.asr.AsrRecognizer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import static android.support.v4.app.ActivityCompat.startActivityForResult;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -51,14 +43,36 @@ public class MainActivity extends AppCompatActivity {
 
     private long startTime;
 
+    public static KeyUtil keyutil;
+    public static Boolean isStarted = false;
+
+
+//    @Override
+//    public boolean onKeyUp(int keyCode, KeyEvent event) {
+//        keyutil.dispatchKeyEvent(event);
+//        return super.onKeyUp(keyCode, event);
+//    }
+//
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        keyutil.dispatchKeyEvent(event);
+//        return super.onKeyDown(keyCode, event);
+//    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MediaPlayer startMediaPlayer = MediaPlayer.create(this, R.raw.start);
+        MediaPlayer endMediaPlayer = MediaPlayer.create(this, R.raw.end);
+        keyutil = new KeyUtil(this, "keypress", startMediaPlayer, endMediaPlayer);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        Log.i("Start", "start test!");
 
 
         fab.setOnClickListener(new View.OnClickListener() {

@@ -6,10 +6,12 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.media.MediaPlayer;
 import android.os.Environment;
 import android.os.IBinder;
 import android.speech.RecognizerIntent;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
@@ -29,7 +31,17 @@ import static com.example.gmx15.phonemaster.Utility.printTree;
 
 public class MyAccessibilityService extends AccessibilityService {
     public MyAccessibilityService() {
+//        super();
+//        MediaPlayer mMediaPlayer = MediaPlayer.create(this, R.raw.start);
+//        keyutil = new KeyUtil(this, "keypress", mMediaPlayer);
+    }
 
+//    private KeyUtil keyutil;
+
+    @Override
+    protected boolean onKeyEvent(KeyEvent event) {
+        MainActivity.keyutil.dispatchKeyEvent(event);
+        return super.onKeyEvent(event);
     }
 
     @Override
@@ -39,23 +51,24 @@ public class MyAccessibilityService extends AccessibilityService {
             // View Types
             case AccessibilityEvent.TYPE_VIEW_CLICKED:
                 // represents the event of clicking on a View like Button, CompoundButton, etc.
-                Log.i("Click", accessibilityEvent.getText().toString());
+                Log.i("My_Click", accessibilityEvent.getText().toString());
                 // 可能可以判断点击的是否在一个list里
-                Log.i("Click_Class", accessibilityEvent.getClassName().toString());
+                Log.i("My_Click_Class", accessibilityEvent.getClassName().toString());
                 // 可以用于获取在哪个应用里
-                Log.i("Click_Package", accessibilityEvent.getPackageName().toString());
+                Log.i("My_Click_Package", accessibilityEvent.getPackageName().toString());
                 // 可以作为补充信息
                 if (accessibilityEvent.getContentDescription() != null) {
-                    Log.i("MyDescription", accessibilityEvent.getContentDescription().toString());
+                    Log.i("My_Description", accessibilityEvent.getContentDescription().toString());
                 }
-                MainActivity.getmTextToSpeech().speak(accessibilityEvent.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
+                // 测试text to speech
+//                MainActivity.getmTextToSpeech().speak(accessibilityEvent.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
                 break;
             case AccessibilityEvent.TYPE_VIEW_LONG_CLICKED:
                 // represents the event of long clicking on a View like Button, CompoundButton, etc
                 Log.i("Long_Click", accessibilityEvent.getText().toString());
             case AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED:
                 // represents the event of changing the text of an EditText.
-                Log.i("Text", accessibilityEvent.getText().toString());
+                Log.i("My_Text", accessibilityEvent.getText().toString());
                 break;
             case AccessibilityEvent.TYPE_VIEW_SCROLLED:
                 // 一次滚动会产生很多条log
@@ -63,15 +76,15 @@ public class MyAccessibilityService extends AccessibilityService {
             // Notification
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
                 Log.i("Notification", accessibilityEvent.getText().toString());
-            // TRANSITION TYPES
+//            // TRANSITION TYPES
 //            case AccessibilityEvent.TYPE_WINDOWS_CHANGED:
-//                Log.i("Window_Change", accessibilityEvent.getContentChangeTypes());
+//                Log.i("Window_Change", accessibilityEvent.getClassName().toString());
 //            case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
 //                // represents the event of opening a PopupWindow, Menu, Dialog, etc.
 //                Log.i("Window_State_Change", accessibilityEvent.getClassName().toString());
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-                Log.i("Window_Content_Change", accessibilityEvent.getClassName().toString());
-                Log.i("Window_Content_Change_Text", accessibilityEvent.getText().toString());
+                Log.i("My_Window_Content_Change", accessibilityEvent.getClassName().toString());
+                Log.i("My_Window_Content_Change_Text", accessibilityEvent.getText().toString());
             default:
                 Log.i("NewEvent", accessibilityEvent.toString());
         }
