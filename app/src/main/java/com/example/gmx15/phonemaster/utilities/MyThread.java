@@ -1,7 +1,11 @@
 package com.example.gmx15.phonemaster.utilities;
 
+import com.example.gmx15.phonemaster.accessibility_service.MyAccessibilityService;
+
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+
 
 public class MyThread extends Thread {
     private String payload;

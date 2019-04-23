@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -90,6 +91,9 @@ public class KeyUtil {
                 startMediaPlayer.start();
             } else {
                 endMediaPlayer.start();
+                MainActivity.getTextToSpeech().stop();
+                MainActivity.getTextToSpeech().speak("请给这段操作起个名字", TextToSpeech.QUEUE_FLUSH, null);
+                MainActivity.startRecognizer();
             }
         }
     }

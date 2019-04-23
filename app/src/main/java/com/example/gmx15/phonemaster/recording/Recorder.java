@@ -114,21 +114,6 @@ public class Recorder {
 //        }
 
 
-
-//        int try_time = 10;
-//        while (root == null && try_time > 0) {
-//            root = getRootInActiveWindow();
-//            try_time -= 1;
-//        }
-//        if (root == null) {
-//            boolean handHandled = false;
-//            if (!handHandled) {
-//                Log.i("Res", "RES-DUMP_LAYOUT#Failure#");
-//            } else {
-//            }
-//            return;
-//        }
-
     }
 
 }

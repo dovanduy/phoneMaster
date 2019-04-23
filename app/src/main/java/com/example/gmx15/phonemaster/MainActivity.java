@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         MediaPlayer startMediaPlayer = MediaPlayer.create(this, R.raw.start);
         MediaPlayer endMediaPlayer = MediaPlayer.create(this, R.raw.end);
 
-        keyutil = new KeyUtil(this, "keypress", startMediaPlayer, endMediaPlayer);
+        keyutil = new KeyUtil(this, "RecordKey", startMediaPlayer, endMediaPlayer);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
               @Override
               public void onClick(View v) {
-//                  startRecognizer();
+                  startRecognizer();
               }
           });
 
@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                 stringBuffer.append(w);
             }
             String result = stringBuffer.toString();
-            Log.i("test_xunfei", "识别结果为：" + result);
+            Log.i("RecordEnd", "识别结果为：" + result);
             return result;
         } catch (JSONException e) {
             e.printStackTrace();

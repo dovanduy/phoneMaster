@@ -132,23 +132,23 @@ public class Utility {
         builder.append("{");
         appendField("@index", indexInParent, builder);
         appendField("@text", crtRoot.getText(), builder);
-//        appendField("@resource-id", crtRoot.getViewIdResourceName(), builder);
+        appendField("@resource-id", crtRoot.getViewIdResourceName(), builder);
         appendField("@class", crtRoot.getClassName(), builder);
-//        appendField("@package", crtRoot.getPackageName(), builder);
+        appendField("@package", crtRoot.getPackageName(), builder);
         appendField("@content-desc", crtRoot.getContentDescription(), builder);
-//        appendField("@checkable", crtRoot.isCheckable(), builder);
-//        appendField("@checked", crtRoot.isChecked(), builder);
-//        appendField("@clickable", crtRoot.isClickable(), builder);
-//        appendField("@enabled", crtRoot.isEnabled(), builder);
-//        appendField("@focusable", crtRoot.isFocusable(), builder);
-//        appendField("@focused", crtRoot.isFocused(), builder);
-//        appendField("@scrollable", crtRoot.isScrollable(), builder);
-//        appendField("@long-clickable", crtRoot.isLongClickable(), builder);
-//        appendField("@password", crtRoot.isPassword(), builder);
-//        appendField("@selected", crtRoot.isSelected(), builder);
-//        appendField("@editable", crtRoot.isEditable(), builder);
-//        appendField("@accessibilityFocused", crtRoot.isAccessibilityFocused(), builder);
-//        appendField("@dismissable", crtRoot.isDismissable(), builder);
+        appendField("@checkable", crtRoot.isCheckable(), builder);
+        appendField("@checked", crtRoot.isChecked(), builder);
+        appendField("@clickable", crtRoot.isClickable(), builder);
+        appendField("@enabled", crtRoot.isEnabled(), builder);
+        appendField("@focusable", crtRoot.isFocusable(), builder);
+        appendField("@focused", crtRoot.isFocused(), builder);
+        appendField("@scrollable", crtRoot.isScrollable(), builder);
+        appendField("@long-clickable", crtRoot.isLongClickable(), builder);
+        appendField("@password", crtRoot.isPassword(), builder);
+        appendField("@selected", crtRoot.isSelected(), builder);
+        appendField("@editable", crtRoot.isEditable(), builder);
+        appendField("@accessibilityFocused", crtRoot.isAccessibilityFocused(), builder);
+        appendField("@dismissable", crtRoot.isDismissable(), builder);
 
         Rect r = new Rect();
         crtRoot.getBoundsInScreen(r);
@@ -168,7 +168,7 @@ public class Utility {
                     builder.append(",");
 //                }
             }
-            builder.append("[]]}");
+            builder.append("{}]}");
         }
     }
 

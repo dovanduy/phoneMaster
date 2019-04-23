@@ -9,17 +9,15 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
-import android.view.accessibility.AccessibilityRecord;
 import android.view.accessibility.AccessibilityWindowInfo;
 
-import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.example.gmx15.phonemaster.utilities.MyThread;
 import com.example.gmx15.phonemaster.MainActivity;
 import com.example.gmx15.phonemaster.recording.Utility;
+import com.example.gmx15.phonemaster.utilities.MyThread;
 
 public class MyAccessibilityService extends AccessibilityService {
 
@@ -36,29 +34,65 @@ public class MyAccessibilityService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
 
-        switch (accessibilityEvent.getEventType()) {
-            case AccessibilityEvent.TYPE_VIEW_CLICKED:
-                AccessibilityNodeInfo node = accessibilityEvent.getSource();
+        if (MainActivity.isStarted) {
 
-                Log.i("Click", accessibilityEvent.getText().toString());
-                Log.i("Click", accessibilityEvent.getClassName().toString());
-                Log.i("Click", accessibilityEvent.toString());
+            StringBuilder jsonBuilder = new StringBuilder();
+            AccessibilityNodeInfo node = null;
+            boolean isStep = false;
 
+            switch (accessibilityEvent.getEventType()) {
+                case AccessibilityEvent.TYPE_VIEW_CLICKED:
+                    node = accessibilityEvent.getSource();
+                    isStep = true;
 
+                    Log.i("RecordEvent", accessibilityEvent.getText().toString());
+                    Log.i("RecordEvent", accessibilityEvent.getClassName().toString());
+                    Log.i("RecordEvent", accessibilityEvent.toString());
+                case AccessibilityEvent.TYPE_VIEW_FOCUSED:
+                    Log.i("Focus", accessibilityEvent.getText().toString());
+//                    previousLayout = getRootInActiveWindow();
+//            case AccessibilityEvent.TYPE_VIEW_SELECTED:
+//                Log.i("My_Text", accessibilityEvent.getText().toString());
+//            case AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED:
+//                Log.i("My_Text", accessibilityEvent.getText().toString());
+//            default:
+//                Log.i("NewEvent", accessibilityEvent.toString());
+            }
+
+            if (isStep) {
                 if (node == null) {
                     Log.i(TAG, "node is null");
                     if (accessibilityEvent.getClassName() != null && accessibilityEvent.getText() != null) {
                         if (fuzzyFindPath(previousLayout, accessibilityEvent) != null) {
-                            Log.i("Path", fuzzyFindPath(previousLayout, accessibilityEvent));
+                            Log.i("RecordPathP", fuzzyFindPath(previousLayout, accessibilityEvent));
+                            Utility.generateLayoutJson(previousLayout, 0, jsonBuilder);
+                            String res = jsonBuilder.toString();
+                            Thread t = new MyThread(res);
+                            t.start();
+                        } else if (fuzzyFindPath(getRootInActiveWindow(), accessibilityEvent) != null) {
+                            Log.i("RecordPathPC", fuzzyFindPath(getRootInActiveWindow(), accessibilityEvent));
+                            Utility.generateLayoutJson(previousLayout, 0, jsonBuilder);
+                            String res = jsonBuilder.toString();
+                            Thread t = new MyThread(res);
+                            t.start();
                         } else {
                             Log.i("Fail", "Fail to find path");
+                            if (getRootInActiveWindow() != null) {
+                                Log.i("Layout", getRootInActiveWindow().toString());
+                            }
+                            if (previousLayout != null) {
+                                Log.i("Layout", previousLayout.toString());
+                            }
                         }
                     }
-                    return;
                 } else {
                     Log.i(TAG, node.toString());
-                    if (findPath(getRootInActiveWindow(), node) != null) {
-                        Log.i("Path", findPath(previousLayout, node));
+                    if (findPath(previousLayout, node) != null) {
+                        Log.i("RecordPath", findPath(previousLayout, node));
+                        Utility.generateLayoutJson(previousLayout, 0, jsonBuilder);
+                        String res = jsonBuilder.toString();
+                        Thread t = new MyThread(res);
+                        t.start();
                     } else {
                         Rect r = new Rect();
                         node.getBoundsInScreen(r);
@@ -66,56 +100,10 @@ public class MyAccessibilityService extends AccessibilityService {
                         Log.i("Target", r.toString());
                     }
                 }
+            }
 
-
-                AccessibilityNodeInfo rootNode = getRootInActiveWindow();
-    //            Log.i("Tree", Utility.printTree(rootNode));
-
-                StringBuilder jsonBuilder = new StringBuilder();
-                Utility.generateLayoutJson(previousLayout, 0, jsonBuilder);
-                String res = jsonBuilder.toString();
-    //            Log.i("Layout", res);
-                Thread t = new MyThread(res);
-                t.start();
-
-
-//                AccessibilityNodeInfo root = getRootInActiveWindow();
-//                if (root == null) {
-//                    Log.i(TAG, "root is null");
-//                    return;
-//                }
-//
-//                // Strategy #1: locate node via its id
-//                String id = node.getViewIdResourceName();
-//                if (id == null) {
-//                    Log.i(TAG, "id is null");
-//                } else {
-//
-//                    List<AccessibilityNodeInfo> rootNodes = root.findAccessibilityNodeInfosByViewId(id);
-//                    if (rootNodes.size() == 1) {
-//                        Log.i(TAG, "success (via id)");
-//                        return;
-//                    } else {
-//                        Log.i(TAG, "multiple nodes with that id");
-//                    }
-//                }
-//
-//                // Strategy #2: locate node via its text
-//                CharSequence text = node.getText();
-//                if (text == null) {
-//                    Log.i(TAG, "text is null");
-//                } else {
-//                    List<AccessibilityNodeInfo> rootNodes = root.findAccessibilityNodeInfosByText(text.toString());
-//                    if (rootNodes.size() == 1) {
-//                        Log.i(TAG, "success (via text)");
-//                        return;
-//                    }
-//                }
-//
-//                Log.i(TAG, "failed, node was not recoverable");
+            previousLayout = getRootInActiveWindow();
         }
-
-        previousLayout = getRootInActiveWindow();
 
 
 //        if (MainActivity.isStarted) {
@@ -156,6 +144,10 @@ public class MyAccessibilityService extends AccessibilityService {
         if(root == null) {
             return null;
         }
+
+//        if (root.getText() != null) {
+//            Log.i("ALlText", root.getText().toString());
+//        }
 
         if (root.getText() == event.getText() && root.getClassName() == event.getClassName())
             return event.getClassName() + ";";
