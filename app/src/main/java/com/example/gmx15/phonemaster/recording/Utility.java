@@ -6,6 +6,10 @@ import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Locale;
 
 
@@ -127,65 +131,49 @@ public class Utility {
     }
 
 
-    public static void generateLayoutJson(AccessibilityNodeInfo crtRoot, int indexInParent, StringBuilder builder){
+    public static JSONObject generateLayoutJson(AccessibilityNodeInfo crtRoot, int indexInParent){
         // 生成描述这个节点及其子节点的 json 字符串
-        builder.append("{");
-        appendField("@index", indexInParent, builder);
-        appendField("@text", crtRoot.getText(), builder);
-        appendField("@resource-id", crtRoot.getViewIdResourceName(), builder);
-        appendField("@class", crtRoot.getClassName(), builder);
-        appendField("@package", crtRoot.getPackageName(), builder);
-        appendField("@content-desc", crtRoot.getContentDescription(), builder);
-        appendField("@checkable", crtRoot.isCheckable(), builder);
-        appendField("@checked", crtRoot.isChecked(), builder);
-        appendField("@clickable", crtRoot.isClickable(), builder);
-        appendField("@enabled", crtRoot.isEnabled(), builder);
-        appendField("@focusable", crtRoot.isFocusable(), builder);
-        appendField("@focused", crtRoot.isFocused(), builder);
-        appendField("@scrollable", crtRoot.isScrollable(), builder);
-        appendField("@long-clickable", crtRoot.isLongClickable(), builder);
-        appendField("@password", crtRoot.isPassword(), builder);
-        appendField("@selected", crtRoot.isSelected(), builder);
-        appendField("@editable", crtRoot.isEditable(), builder);
-        appendField("@accessibilityFocused", crtRoot.isAccessibilityFocused(), builder);
-        appendField("@dismissable", crtRoot.isDismissable(), builder);
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("@index", indexInParent);
+            obj.put("@text", crtRoot.getText());
+            obj.put("@resource-id", crtRoot.getViewIdResourceName());
+            obj.put("@class", crtRoot.getClassName());
+            obj.put("@package", crtRoot.getPackageName());
+            obj.put("@content-desc", crtRoot.getContentDescription());
+            obj.put("@checkable", crtRoot.isCheckable());
+            obj.put("@checked", crtRoot.isChecked());
+            obj.put("@clickable", crtRoot.isClickable());
+            obj.put("@enabled", crtRoot.isEnabled());
+            obj.put("@focusable", crtRoot.isFocusable());
+            obj.put("@focused", crtRoot.isFocused());
+            obj.put("@scrollable", crtRoot.isScrollable());
+            obj.put("@long-clickable", crtRoot.isLongClickable());
+            obj.put("@password", crtRoot.isPassword());
+            obj.put("@selected", crtRoot.isSelected());
+            obj.put("@editable", crtRoot.isEditable());
+            obj.put("@accessibilityFocused", crtRoot.isAccessibilityFocused());
+            obj.put("@dismissable", crtRoot.isDismissable());
 
-        Rect r = new Rect();
-        crtRoot.getBoundsInScreen(r);
-        builder.append("\"@bounds\":\"").append('[').append(r.left).append(',').append(r.top).append("][").append(r.right).append(',').append(r.bottom).append(']').append("\",");
-        if(crtRoot.getChildCount() == 0){
-            builder.append("\"node\":[]}");
-        } else {
-            builder.append("\"node\":[");
-            for(int i = 0; i < crtRoot.getChildCount(); ++ i){
-                if(crtRoot.getChild(i) == null){
-                    continue;
+            Rect r = new Rect();
+            crtRoot.getBoundsInScreen(r);
+            String bounds = "[" + r.left + ',' + r.top + "][" + r.right + ',' + r.bottom + "]";
+            obj.put("@bounds", bounds);
+
+            if(crtRoot.getChildCount() == 0){
+                JSONArray emptyArray = new JSONArray();
+                obj.put("node", emptyArray);
+            } else {
+                for(int i = 0; i < crtRoot.getChildCount(); ++ i){
+                    if(crtRoot.getChild(i) == null){
+                        continue;
+                    }
+                    obj.accumulate("node", generateLayoutJson(crtRoot.getChild(i), i));
                 }
-                generateLayoutJson(crtRoot.getChild(i), i, builder);
-
-                // TODO：json最后一项后的逗号问题
-//                if (i != crtRoot.getChildCount() - 1) {
-                    builder.append(",");
-//                }
             }
-            builder.append("{}]}");
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-    }
-
-
-    static void appendField(String name, String value, StringBuilder builder){
-        builder.append("\"").append(name).append("\":\"").append(value == null? "": value).append("\",");
-    }
-
-    static void appendField(String name, int value, StringBuilder builder){
-        builder.append("\"").append(name).append("\":\"").append(value).append("\",");
-    }
-
-    static void appendField(String name, CharSequence value, StringBuilder builder){
-        builder.append("\"").append(name).append("\":\"").append(value == null? "": value).append("\",");
-    }
-
-    static void appendField(String name, boolean value, StringBuilder builder){
-        builder.append("\"").append(name).append("\":\"").append(value? "true": "false").append("\",");
+        return obj;
     }
 }

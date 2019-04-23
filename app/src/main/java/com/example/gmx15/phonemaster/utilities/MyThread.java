@@ -17,7 +17,7 @@ public class MyThread extends Thread {
     @Override
     public void run() {
         try {
-            String ip = "183.173.110.140";
+            String ip = "183.173.106.203";
             int port = 8000;
             Socket sck = new Socket(ip, port);
             byte[] bstream = this.payload.getBytes();

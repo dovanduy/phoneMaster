@@ -21,10 +21,6 @@ import com.example.gmx15.phonemaster.utilities.MyThread;
 
 public class MyAccessibilityService extends AccessibilityService {
 
-    private static final String TAG = "RecorderService";
-
-    private AccessibilityNodeInfo previousLayout = null;
-
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
         MainActivity.keyutil.dispatchKeyEvent(event);
@@ -35,135 +31,8 @@ public class MyAccessibilityService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
 
         if (MainActivity.isStarted) {
-
-            StringBuilder jsonBuilder = new StringBuilder();
-            AccessibilityNodeInfo node = null;
-            boolean isStep = false;
-
-            switch (accessibilityEvent.getEventType()) {
-                case AccessibilityEvent.TYPE_VIEW_CLICKED:
-                    node = accessibilityEvent.getSource();
-                    isStep = true;
-
-                    Log.i("RecordEvent", accessibilityEvent.getText().toString());
-                    Log.i("RecordEvent", accessibilityEvent.getClassName().toString());
-                    Log.i("RecordEvent", accessibilityEvent.toString());
-                case AccessibilityEvent.TYPE_VIEW_FOCUSED:
-                    Log.i("Focus", accessibilityEvent.getText().toString());
-//                    previousLayout = getRootInActiveWindow();
-//            case AccessibilityEvent.TYPE_VIEW_SELECTED:
-//                Log.i("My_Text", accessibilityEvent.getText().toString());
-//            case AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED:
-//                Log.i("My_Text", accessibilityEvent.getText().toString());
-//            default:
-//                Log.i("NewEvent", accessibilityEvent.toString());
-            }
-
-            if (isStep) {
-                if (node == null) {
-                    Log.i(TAG, "node is null");
-                    if (accessibilityEvent.getClassName() != null && accessibilityEvent.getText() != null) {
-                        if (fuzzyFindPath(previousLayout, accessibilityEvent) != null) {
-                            Log.i("RecordPathP", fuzzyFindPath(previousLayout, accessibilityEvent));
-                            Utility.generateLayoutJson(previousLayout, 0, jsonBuilder);
-                            String res = jsonBuilder.toString();
-                            Thread t = new MyThread(res);
-                            t.start();
-                        } else if (fuzzyFindPath(getRootInActiveWindow(), accessibilityEvent) != null) {
-                            Log.i("RecordPathPC", fuzzyFindPath(getRootInActiveWindow(), accessibilityEvent));
-                            Utility.generateLayoutJson(previousLayout, 0, jsonBuilder);
-                            String res = jsonBuilder.toString();
-                            Thread t = new MyThread(res);
-                            t.start();
-                        } else {
-                            Log.i("Fail", "Fail to find path");
-                            if (getRootInActiveWindow() != null) {
-                                Log.i("Layout", getRootInActiveWindow().toString());
-                            }
-                            if (previousLayout != null) {
-                                Log.i("Layout", previousLayout.toString());
-                            }
-                        }
-                    }
-                } else {
-                    Log.i(TAG, node.toString());
-                    if (findPath(previousLayout, node) != null) {
-                        Log.i("RecordPath", findPath(previousLayout, node));
-                        Utility.generateLayoutJson(previousLayout, 0, jsonBuilder);
-                        String res = jsonBuilder.toString();
-                        Thread t = new MyThread(res);
-                        t.start();
-                    } else {
-                        Rect r = new Rect();
-                        node.getBoundsInScreen(r);
-                        Log.i("Click", accessibilityEvent.getText().toString());
-                        Log.i("Target", r.toString());
-                    }
-                }
-            }
-
-            previousLayout = getRootInActiveWindow();
+            MainActivity.recorder.dispatchAccessibilityEvent(accessibilityEvent, getRootInActiveWindow());
         }
-
-
-//        if (MainActivity.isStarted) {
-//            MainActivity.recorder.dispatchAccessibilityEvent(accessibilityEvent, getRootInActiveWindow());
-//        }
-    }
-
-    public String findPath(AccessibilityNodeInfo root, AccessibilityNodeInfo target) {
-        if(root == null) {
-            return null;
-        }
-
-        Rect r1 = new Rect();
-        root.getBoundsInScreen(r1);
-        Rect r2 = new Rect();
-        target.getBoundsInScreen(r2);
-//        Log.i("RecList", r1.toString());
-
-        if (r1.left == r2.left && r1.right == r2.right && r1.bottom == r2.bottom && r1.top == r2.top
-                && root.getClassName() == target.getClassName())
-            return target.getClassName() + ";";
-        if(root.getChildCount() == 0) {
-            return null;
-        } else {
-            for(int i = 0; i < root.getChildCount(); ++ i) {
-                if(root.getChild(i) != null) {
-                    String tempPath = findPath(root.getChild(i), target);
-                    if (tempPath != null) {
-                        return root.getClassName() + "|" + Integer.toString(i) + ";" + tempPath;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    public String fuzzyFindPath(AccessibilityNodeInfo root, AccessibilityEvent event) {
-        if(root == null) {
-            return null;
-        }
-
-//        if (root.getText() != null) {
-//            Log.i("ALlText", root.getText().toString());
-//        }
-
-        if (root.getText() == event.getText() && root.getClassName() == event.getClassName())
-            return event.getClassName() + ";";
-        if(root.getChildCount() == 0) {
-            return null;
-        } else {
-            for(int i = 0; i < root.getChildCount(); ++ i) {
-                if(root.getChild(i) != null) {
-                    String tempPath = fuzzyFindPath(root.getChild(i), event);
-                    if (tempPath != null) {
-                        return root.getClassName() + "|" + Integer.toString(i) + ";" + tempPath;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     @Override

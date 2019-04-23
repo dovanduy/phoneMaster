@@ -11,5 +11,7 @@ public class Action {
     private UILayout page;
     private StringBuilder path;
 
-    private Action previousAction;
+    public Action() {
+
+    }
 }

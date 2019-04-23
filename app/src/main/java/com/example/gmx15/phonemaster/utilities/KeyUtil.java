@@ -94,6 +94,19 @@ public class KeyUtil {
                 MainActivity.getTextToSpeech().stop();
                 MainActivity.getTextToSpeech().speak("请给这段操作起个名字", TextToSpeech.QUEUE_FLUSH, null);
                 MainActivity.startRecognizer();
+
+//                while (true) {
+//                    if (!MainActivity.getTextToSpeech().isSpeaking()) {
+//                        Log.i("My_Speaking", "End speaking");
+//                        break;
+//                    } else {
+//                        try {
+//                            Thread.sleep(1000);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
             }
         }
     }
