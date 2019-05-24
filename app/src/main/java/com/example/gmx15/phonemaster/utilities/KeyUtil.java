@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import com.example.gmx15.phonemaster.MainActivity;
+import com.example.gmx15.phonemaster.recording.Recorder;
 
 import java.io.IOException;
 
@@ -89,6 +90,7 @@ public class KeyUtil {
 
             if (MainActivity.isStarted) {
                 startMediaPlayer.start();
+                Recorder.stepId = 0;
             } else {
                 endMediaPlayer.start();
                 MainActivity.getTextToSpeech().stop();

@@ -11,16 +11,26 @@ import com.example.gmx15.phonemaster.utilities.MyThread;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.io.StringWriter;
+import java.net.Socket;
 
 
 public class Recorder {
 
     private static final String TAG = "RecorderService";
     private AccessibilityNodeInfo previousLayout = null;
+    private Socket sck;
+    private String filePath = "/sdcard/records/";
+    private String shortCutName = "temp";
+    public static int stepId = 0;
 
-    public Recorder() {
-
+    public Recorder(Socket sck) {
+        this.sck = sck;
     }
 
     public void dispatchAccessibilityEvent(AccessibilityEvent event, AccessibilityNodeInfo root) {
@@ -29,6 +39,7 @@ public class Recorder {
         boolean isStep = false;
         String path = "";
         JSONObject layout = null;
+        String stepParams = "";
 
         int eventType = event.getEventType();
 
@@ -39,6 +50,7 @@ public class Recorder {
                 Log.i("RecordEvent", event.getText().toString());
                 Log.i("RecordEvent", event.getClassName().toString());
                 Log.i("RecordEvent", event.toString());
+                stepParams = "CLICK " + event.getText().toString();
             case AccessibilityEvent.TYPE_VIEW_FOCUSED:
                 Log.i("Focus", event.getText().toString());
 //                    previousLayout = getRootInActiveWindow();
@@ -73,7 +85,26 @@ public class Recorder {
         if (!path.equals("") && layout != null ) {
             Log.i("RecordPath", path);
             String res = layout.toString();
-            Thread t = new MyThread(res);
+            savePath(path + "\r\n" + stepParams, layout.toString());
+            stepId += 1;
+
+//            File file = new File("/data/data/com.example.gmx15.phonemaster/records/path1.txt");
+//            if (!file.exists()) {
+//                Log.i("readfile", "file not exists");
+//            }
+//            else {
+//                RandomAccessFile raf = null;
+//                try {
+//                    raf = new RandomAccessFile(file, "r");
+//                    raf.seek(0);
+//                    Log.i("read file", raf.readLine());
+//                    raf.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+
+            Thread t = new MyThread(res, sck);
             t.start();
         }
 
@@ -101,7 +132,7 @@ public class Recorder {
                 if(root.getChild(i) != null) {
                     String tempPath = findPath(root.getChild(i), target);
                     if (tempPath != null) {
-                        return root.getClassName() + "|" + Integer.toString(i) + ";" + tempPath;
+                        return root.getClassName() + "|" + i + ";" + tempPath;
                     }
                 }
             }
@@ -118,7 +149,7 @@ public class Recorder {
 //            Log.i("ALlText", root.getText().toString());
 //        }
 
-        if (root.getText() == event.getText() && root.getClassName() == event.getClassName())
+        if (root.getText() == event.getText().get(0) && root.getClassName() == event.getClassName())
             return event.getClassName() + ";";
         if(root.getChildCount() == 0) {
             return null;
@@ -127,11 +158,74 @@ public class Recorder {
                 if(root.getChild(i) != null) {
                     String tempPath = fuzzyFindPath(root.getChild(i), event);
                     if (tempPath != null) {
-                        return root.getClassName() + "|" + Integer.toString(i) + ";" + tempPath;
+                        return root.getClassName() + "|" + i + ";" + tempPath;
                     }
                 }
             }
         }
         return null;
     }
+
+    private void savePath(String path, String layout) {
+        String stepFilePath = filePath + shortCutName + "/" + stepId + "/";
+        writeTxtToFile(path, stepFilePath, "important_ids.txt");
+        writeTxtToFile(layout, stepFilePath, "layout.json");
+    }
+
+    // 将字符串写入到文本文件中
+    private void writeTxtToFile(String strcontent, String filePath, String fileName) {
+        //生成文件夹之后，再生成文件，不然会出错
+        makeFilePath(filePath, fileName);
+
+        String strFilePath = filePath + fileName;
+        // 每次写入时，都换行写
+        String strContent = strcontent + "\r\n";
+        try {
+            File file = new File(strFilePath);
+            if (!file.exists()) {
+                Log.d("TestFile", "Create the file:" + strFilePath);
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+            RandomAccessFile raf = new RandomAccessFile(file, "rw");
+            raf.seek(0);
+            raf.write(strContent.getBytes());
+            raf.close();
+        } catch (Exception e) {
+            Log.e("TestFile", "Error on write File:" + e);
+        }
+    }
+
+    //生成文件
+    private File makeFilePath(String filePath, String fileName) {
+        File file = null;
+        makeRootDirectory(filePath);
+        try {
+            file = new File(filePath + fileName);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
+
+    //生成文件夹
+    private static void makeRootDirectory(String filePath) {
+        File file = null;
+        try {
+            Log.i("filepath: ", filePath);
+            file = new File(filePath);
+            if (!file.exists()) {
+                boolean res = file.mkdir();
+                if (!res) {
+                    Log.i("filepath:", "fail to create");
+                }
+            }
+        } catch (Exception e) {
+            Log.i("error:", e + "");
+        }
+    }
+
 }

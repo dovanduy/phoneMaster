@@ -15,7 +15,9 @@ import android.widget.Toast;
 import android.util.Log;
 
 import com.example.gmx15.phonemaster.recording.Recorder;
+import com.example.gmx15.phonemaster.utilities.CreateSocket;
 import com.example.gmx15.phonemaster.utilities.KeyUtil;
+import com.example.gmx15.phonemaster.utilities.MyThread;
 import com.iflytek.cloud.RecognizerListener;
 import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.ErrorCode;
@@ -29,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.Socket;
 import java.util.Locale;
 
 
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     public static KeyUtil keyutil;
     public static Boolean isStarted = false;
 
-    public static Recorder recorder = new Recorder();
+    public static Recorder recorder;
 
     private InitListener mInitListener;
 
@@ -53,6 +56,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+//        Socket sck = null;
+
+        CreateSocket t = new CreateSocket();
+        t.start();
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        recorder = new Recorder(t.sck);
 
         // init xunfei speech recognizer
         SpeechUtility.createUtility(this, "appid=5cadd877");
