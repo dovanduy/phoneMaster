@@ -12,6 +12,8 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.example.gmx15.phonemaster.accessibility_service.MyAccessibilityService;
+
 import org.json.JSONException;
 
 import java.io.BufferedReader;
@@ -375,7 +377,7 @@ public class UIAuto {
             while (System.currentTimeMillis() - startTime <= maxWaitTimeMs && !reachedTargetNode) {
                 AccessibilityNodeInfoRecord.buildTree();
                 String crtPackageName = AccessibilityNodeInfoRecord.root.getPackageName().toString();
-                MergedApp app = UIALServer.self.packageToMergedApp.get(crtPackageName);
+                MergedApp app = MyAccessibilityService.self.packageToMergedApp.get(crtPackageName);
                 List<MergedNode> oneNodeList = new ArrayList<>();
                 oneNodeList.add(crtAction.actionNode);
 
@@ -482,7 +484,7 @@ public class UIAuto {
 
         boolean result = false;
         if(action.actionType == Action.GLOBAL_BACK){
-            result = UIALServer.self.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+            result = MyAccessibilityService.self.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
         } else if(action.actionType == Action.CLICK){
             result = uiNode.performAction(AccessibilityNodeInfo.ACTION_CLICK);
         } else if(action.actionType == Action.SCROLL){
@@ -555,7 +557,7 @@ public class UIAuto {
             AccessibilityNodeInfoRecordFromFile.removeRedundantNodes();
 
             String crtPackageName = AccessibilityNodeInfoRecord.root.getPackageName().toString();
-            MergedApp app = UIALServer.self.packageToMergedApp.get(crtPackageName);
+            MergedApp app = MyAccessibilityService.self.packageToMergedApp.get(crtPackageName);
             if(app == null){
                 return null;
             }
@@ -592,7 +594,7 @@ public class UIAuto {
         ComponentName componentName = new ComponentName(pkg, cls);
         Intent intent = new Intent();
         intent.setComponent(componentName);
-        UIALServer.self.startActivity(intent);
+        MyAccessibilityService.self.startActivity(intent);
     }
 
 
@@ -600,7 +602,7 @@ public class UIAuto {
         if(Objects.equals(pkgName, Utility.getCurrentPkg())){
             return true;
         }
-        PackageManager manager = UIALServer.self.getPackageManager();
+        PackageManager manager = MyAccessibilityService.self.getPackageManager();
         PackageInfo info;
         try {
             info = manager.getPackageInfo(pkgName, 0);
@@ -615,7 +617,7 @@ public class UIAuto {
         if(intent == null)
             return false;
 
-        UIALServer.self.startActivity(intent);
+        MyAccessibilityService.self.startActivity(intent);
 
         int WAIT_UNTIL_APP = 3000;
         long startTime = System.currentTimeMillis();
@@ -635,7 +637,7 @@ public class UIAuto {
             Set<UIAuto.Action> visitedActions = new HashSet<>();
             AccessibilityNodeInfoRecord.buildTree();
             String crtPackageName = AccessibilityNodeInfoRecord.root.getPackageName().toString();
-            MergedApp app = UIALServer.self.packageToMergedApp.get(crtPackageName);
+            MergedApp app = MyAccessibilityService.self.packageToMergedApp.get(crtPackageName);
             if (app == null) {
                 Log.i("failed", "current app not supported");
                 return false;

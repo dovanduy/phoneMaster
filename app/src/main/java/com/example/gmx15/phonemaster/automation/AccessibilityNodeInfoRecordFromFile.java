@@ -120,8 +120,6 @@ public class AccessibilityNodeInfoRecordFromFile extends AccessibilityNodeInfoRe
     }
 
 
-
-
     // 从文件中载入 ui 树 用来对程序进行验证
     boolean _isClickable;
     boolean _isScrollable;

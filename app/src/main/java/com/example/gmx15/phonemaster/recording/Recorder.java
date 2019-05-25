@@ -4,19 +4,12 @@ import android.graphics.Rect;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
-import android.speech.tts.TextToSpeech;
-
-import com.example.gmx15.phonemaster.MainActivity;
 import com.example.gmx15.phonemaster.utilities.MyThread;
 
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.io.StringWriter;
 import java.net.Socket;
 
 
@@ -87,23 +80,6 @@ public class Recorder {
             String res = layout.toString();
             savePath(path + "\r\n" + stepParams, layout.toString());
             stepId += 1;
-
-//            File file = new File("/data/data/com.example.gmx15.phonemaster/records/path1.txt");
-//            if (!file.exists()) {
-//                Log.i("readfile", "file not exists");
-//            }
-//            else {
-//                RandomAccessFile raf = null;
-//                try {
-//                    raf = new RandomAccessFile(file, "r");
-//                    raf.seek(0);
-//                    Log.i("read file", raf.readLine());
-//                    raf.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-
             Thread t = new MyThread(res, sck);
             t.start();
         }
@@ -227,5 +203,4 @@ public class Recorder {
             Log.i("error:", e + "");
         }
     }
-
 }

@@ -1,9 +1,7 @@
 package com.example.gmx15.phonemaster.recording;
 
 import android.graphics.Rect;
-import android.os.Bundle;
 import android.view.accessibility.AccessibilityNodeInfo;
-import android.view.accessibility.AccessibilityWindowInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -178,82 +176,12 @@ public class AccessibilityNodeInfoRecord {
         return nodeInfo.getContentDescription();
     }
 
-    public boolean performAction(int action){
-        if(!recycled)
-            return nodeInfo.performAction(action);
-        else
-            return false;
-    }
-
-    public boolean performAction(int action, Bundle info){
-        if(!recycled)
-            return nodeInfo.performAction(action, info);
-        else
-            return false;
-    }
-
     public CharSequence getClassName(){
         return nodeInfo.getClassName();
     }
 
-    public AccessibilityWindowInfo getWindow(){
-        return nodeInfo.getWindow();
-    }
-
     public void getBoundsInScreen(Rect r){
         nodeInfo.getBoundsInScreen(r);
-    }
-
-    public boolean isSelected(){
-        return nodeInfo.isSelected();
-    }
-
-    public CharSequence getPackageName(){
-        return nodeInfo.getPackageName();
-    }
-
-    public int getDrawingOrder(){
-        return nodeInfo.getDrawingOrder();
-    }
-
-    public CharSequence getViewIdResourceName(){
-        return nodeInfo.getViewIdResourceName();
-    }
-
-    public boolean isVisibleToUser(){
-        return nodeInfo.isVisibleToUser();
-    }
-
-    public boolean isFocusable(){
-        return nodeInfo.isFocusable();
-    }
-
-    public AccessibilityNodeInfo getNodeInfo(){
-        return nodeInfo;
-    }
-
-    public boolean isChecked(){
-        return nodeInfo.isChecked();
-    }
-
-    public boolean isEnabled(){
-        return nodeInfo.isEnabled();
-    }
-
-    public boolean isFocused(){
-        return nodeInfo.isFocused();
-    }
-
-    public boolean isPassword(){
-        return nodeInfo.isPassword();
-    }
-
-    public boolean isAccessibilityFocused(){
-        return nodeInfo.isAccessibilityFocused();
-    }
-
-    public boolean isDismissable(){
-        return nodeInfo.isDismissable();
     }
 
     @Override

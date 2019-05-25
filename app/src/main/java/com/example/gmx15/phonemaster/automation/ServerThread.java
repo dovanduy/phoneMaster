@@ -2,6 +2,8 @@ package com.example.gmx15.phonemaster.automation;
 
 import android.util.Pair;
 
+import com.example.gmx15.phonemaster.accessibility_service.MyAccessibilityService;
+
 import org.json.JSONException;
 
 import java.io.BufferedReader;
@@ -16,15 +18,13 @@ import java.util.Map;
 
 public class ServerThread extends Thread {
 
-    PrintStream writer;
-    boolean threadRunning;
     public static Map<String, List<UIAuto.TargetFromFile>> intentToTarget;
 
     public static void init() throws IOException {
         intentToTarget = new HashMap<>();
 
         InputStreamReader inputStreamReader = new InputStreamReader(
-                UIALServer.self.getAssets().open("intentToTarget.txt"));
+                MyAccessibilityService.self.getAssets().open("intentToTarget.txt"));
         BufferedReader reader = new BufferedReader(inputStreamReader);
         String s = null;
         while ((s = reader.readLine()) != null){
@@ -56,12 +56,9 @@ public class ServerThread extends Thread {
         Utility.LuisRes res = Utility.getLuisRes("告诉李家惠明天晚上一起吃饭");
         System.out.println(res == null? "error": res.intent);
 
-        threadRunning = true;
-
-        while (threadRunning){
-            handleJumpAccordingToStoredFiles("./shortcutPath");
-        }
+        handleJumpAccordingToStoredFiles("/sdcard/records/temp/");
     }
+
 
     void handleJumpAccordingToStoredFiles(String rootPath){
         try {
@@ -73,23 +70,21 @@ public class ServerThread extends Thread {
                 // 跳转到对应到页面
                 boolean jumpToApp = UIAuto.jumpToApp(listFromFile.first.get(0).actionNode.packageName);
                 if(!jumpToApp){
-                    writer.println("failed");
                     return;
                 }
 
                 // 跳转到对应到页面
                 boolean jumpToStart = UIAuto.jumpToTargetNodeFromCurrent(listFromFile.first.get(0).actionNode);
                 if(!jumpToStart){
-                    writer.println("failed");
                     return;
                 }
 
                 Pair<List<UIAuto.Action>, Boolean> res = UIAuto.execActions(listFromFile.first, listFromFile.second, null, 5000, null, true);
-                if(res.second) {
-                    writer.println("success");
-                } else {
-                    writer.println("failed");
-                }
+//                if(res.second) {
+//                    writer.println("success");
+//                } else {
+//                    writer.println("failed");
+//                }
             }
         } catch (IOException e) {
             e.printStackTrace();

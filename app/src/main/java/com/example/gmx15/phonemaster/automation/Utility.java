@@ -6,6 +6,7 @@ import android.util.Pair;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.example.gmx15.phonemaster.BuildConfig;
+import com.example.gmx15.phonemaster.accessibility_service.MyAccessibilityService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -129,7 +130,7 @@ public class Utility {
     }
 
     public static String getCurrentPkg(){
-        AccessibilityNodeInfo root = UIALServer.self.getRootInActiveWindow();
+        AccessibilityNodeInfo root = MyAccessibilityService.self.getRootInActiveWindow();
         if(root == null){
             return null;
         }

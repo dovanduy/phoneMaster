@@ -6,6 +6,8 @@ import android.util.Pair;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
+import com.example.gmx15.phonemaster.accessibility_service.MyAccessibilityService;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +22,7 @@ public class AccessibilityNodeInfoRecord {
 
     public static void buildTree(){
         clearTree();
-        UIALServer server = UIALServer.self;
+        MyAccessibilityService server = MyAccessibilityService.self;
 
         AccessibilityNodeInfo root = server.getRootInActiveWindow();
         AccessibilityNodeInfoRecord.root = new AccessibilityNodeInfoRecord(root, null, 0);

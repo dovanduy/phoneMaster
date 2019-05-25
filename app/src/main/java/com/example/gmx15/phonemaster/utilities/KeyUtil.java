@@ -1,7 +1,6 @@
 package com.example.gmx15.phonemaster.utilities;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
@@ -9,14 +8,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import com.example.gmx15.phonemaster.MainActivity;
+import com.example.gmx15.phonemaster.automation.ServerThread;
 import com.example.gmx15.phonemaster.recording.Recorder;
-
-import java.io.IOException;
 
 public class KeyUtil {
     private boolean isVolumeDown = false;
     private boolean isVolumeUp = false;
-    private boolean isMenu = false;
     private int currentKeyCode = 0;
 
     private MediaPlayer startMediaPlayer;
@@ -67,12 +64,6 @@ public class KeyUtil {
             } else if (event.getAction() == KeyEvent.ACTION_UP) {
                 isVolumeUp = false;
             }
-        } else if (keycode == KeyEvent.KEYCODE_MENU) {
-            if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                isMenu = true;
-            } else if (event.getAction() == KeyEvent.ACTION_UP) {
-                isMenu = true;
-            }
         }
 
         // 判断组合按键
@@ -93,9 +84,12 @@ public class KeyUtil {
                 Recorder.stepId = 0;
             } else {
                 endMediaPlayer.start();
-                MainActivity.getTextToSpeech().stop();
-                MainActivity.getTextToSpeech().speak("请给这段操作起个名字", TextToSpeech.QUEUE_FLUSH, null);
-                MainActivity.startRecognizer();
+//                MainActivity.getTextToSpeech().stop();
+//                MainActivity.getTextToSpeech().speak("请给这段操作起个名字", TextToSpeech.QUEUE_FLUSH, null);
+//                MainActivity.startRecognizer();
+
+
+
 
 //                while (true) {
 //                    if (!MainActivity.getTextToSpeech().isSpeaking()) {
@@ -148,17 +142,13 @@ public class KeyUtil {
         }
     }
 
-    private void longPress(int keycode) {
-        Log.i(TAG, "--longPress 长按事件--" + keycode);
-    }
+    private void longPress(int keycode) { Log.i(TAG, "--longPress 长按事件--" + keycode); }
 
     private void singleClick(int keycode) {
         Log.i(TAG, "--singleClick 单击事件--" + keycode);
     }
 
-    private void doublePress(int keycode) {
-        Log.i(TAG, "---doublePress 双击事件--" + keycode);
-    }
+    private void doublePress(int keycode) { Log.i(TAG, "---doublePress 双击事件--" + keycode); }
 
     private void checkForDoubleClick(KeyEvent event) {
         // 有长按时间发生，则不处理单击、双击事件
@@ -195,12 +185,6 @@ public class KeyUtil {
 
         public void setKeycode(int keycode) {
             currentKeycode = keycode;
-        }
-    }
-
-    private void removeDoublePressCallback() {
-        if (mPendingCheckForDoublePress != null) {
-            mHandler.removeCallbacks(mPendingCheckForDoublePress);
         }
     }
 }
