@@ -8,7 +8,7 @@ public class CreateSocket extends Thread {
     @Override
     public void run() {
         try {
-            String ip = "183.173.110.108";
+            String ip = "183.173.108.75";
             int port = 8000;
             this.sck = new Socket(ip, port);
         } catch (Exception e) {

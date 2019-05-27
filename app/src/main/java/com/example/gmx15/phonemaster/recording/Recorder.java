@@ -1,9 +1,12 @@
 package com.example.gmx15.phonemaster.recording;
 
 import android.graphics.Rect;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+
+import com.example.gmx15.phonemaster.MainActivity;
 import com.example.gmx15.phonemaster.utilities.MyThread;
 
 import org.json.JSONObject;
@@ -44,11 +47,20 @@ public class Recorder {
                 Log.i("RecordEvent", event.getClassName().toString());
                 Log.i("RecordEvent", event.toString());
                 stepParams = "CLICK " + event.getText().toString();
+                String clickedText = event.getText().toString();
+                if (clickedText.contains("高旻萱")) {
+                    MainActivity.self.tipClick();
+                    MainActivity.self.mTextToSpeech.stop();
+                    MainActivity.self.mTextToSpeech.speak("请问这里是要选择任意通讯录用户吗？", TextToSpeech.QUEUE_FLUSH, null);
+                }
+                break;
             case AccessibilityEvent.TYPE_VIEW_FOCUSED:
                 Log.i("Focus", event.getText().toString());
-//                    previousLayout = getRootInActiveWindow();
             case AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED:
+//                isStep = true;
                 Log.i("My_Text", event.getText().toString());
+                stepParams = "TEXT " + event.getText().toString();
+                break;
 //            default:
 //                Log.i("NewEvent", accessibilityEvent.toString());
         }
@@ -78,10 +90,10 @@ public class Recorder {
         if (!path.equals("") && layout != null ) {
             Log.i("RecordPath", path);
             String res = layout.toString();
-            savePath(path + "\r\n" + stepParams, layout.toString());
+//            savePath(path + "\r\n" + stepParams, layout.toString());
             stepId += 1;
-            Thread t = new MyThread(res, sck);
-            t.start();
+//            Thread t = new MyThread(res, sck);
+//            t.start();
         }
 
         previousLayout = root;
@@ -96,7 +108,6 @@ public class Recorder {
         root.getBoundsInScreen(r1);
         Rect r2 = new Rect();
         target.getBoundsInScreen(r2);
-//        Log.i("RecList", r1.toString());
 
         if (r1.left == r2.left && r1.right == r2.right && r1.bottom == r2.bottom && r1.top == r2.top
                 && root.getClassName() == target.getClassName())

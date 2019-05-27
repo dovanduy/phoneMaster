@@ -16,14 +16,12 @@ import java.util.Map;
 
 import com.example.gmx15.phonemaster.MainActivity;
 import com.example.gmx15.phonemaster.automation.MergedApp;
-import com.example.gmx15.phonemaster.automation.ServerThread;
 
 import org.json.JSONException;
 
 public class MyAccessibilityService extends AccessibilityService {
     public static MyAccessibilityService self;
     public Map<String, MergedApp> packageToMergedApp;
-    ServerThread thread;
 
     @Override
     public void onCreate() {
@@ -44,11 +42,6 @@ public class MyAccessibilityService extends AccessibilityService {
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
-
-//        if(thread == null) {
-//            thread = new ServerThread();
-//            thread.start();
-//        }
     }
 
     @Override

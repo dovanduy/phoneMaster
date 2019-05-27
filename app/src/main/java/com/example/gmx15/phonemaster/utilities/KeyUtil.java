@@ -18,6 +18,7 @@ public class KeyUtil {
 
     private MediaPlayer startMediaPlayer;
     private MediaPlayer endMediaPlayer;
+    private MediaPlayer yesMediaPlayer;
 
     private static Boolean isDoubleClick = false;
     private static Boolean isLongClick = false;
@@ -29,11 +30,12 @@ public class KeyUtil {
     Context mContext = null;
     private String TAG = "";
 
-    public KeyUtil(Context context, String tag, MediaPlayer sMediaPlayer, MediaPlayer eMediaPlayer) {
+    public KeyUtil(Context context, String tag, MediaPlayer sMediaPlayer, MediaPlayer eMediaPlayer, MediaPlayer yMediaPlayer) {
         mContext = context;
         TAG = tag;
         startMediaPlayer = sMediaPlayer;
         endMediaPlayer = eMediaPlayer;
+        yesMediaPlayer = yMediaPlayer;
     }
 
     public void dispatchKeyEvent(KeyEvent event) {
@@ -148,7 +150,11 @@ public class KeyUtil {
         Log.i(TAG, "--singleClick 单击事件--" + keycode);
     }
 
-    private void doublePress(int keycode) { Log.i(TAG, "---doublePress 双击事件--" + keycode); }
+    private void doublePress(int keycode) {
+        Log.i(TAG, "---doublePress 双击事件--" + keycode);
+        yesMediaPlayer.start();
+        MainActivity.self.cancelInteractingDialog();
+    }
 
     private void checkForDoubleClick(KeyEvent event) {
         // 有长按时间发生，则不处理单击、双击事件

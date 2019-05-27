@@ -1,6 +1,10 @@
 package com.example.gmx15.phonemaster;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 
 import android.speech.tts.TextToSpeech;
@@ -10,11 +14,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import android.util.Log;
 
-import com.example.gmx15.phonemaster.automation.ServerThread;
 import com.example.gmx15.phonemaster.recording.Recorder;
 import com.example.gmx15.phonemaster.utilities.CreateSocket;
 import com.example.gmx15.phonemaster.utilities.KeyUtil;
@@ -32,17 +36,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.Socket;
 import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    static private TextToSpeech mTextToSpeech=null;
+    public static MainActivity self;
 
-    public static TextToSpeech getTextToSpeech() {
-        return MainActivity.mTextToSpeech;
-    }
+    public TextToSpeech mTextToSpeech=null;
 
     public static KeyUtil keyutil;
     public static Boolean isStarted = false;
@@ -53,12 +54,35 @@ public class MainActivity extends AppCompatActivity {
 
     private static SpeechRecognizer mAsr;
 
+    private AlertDialog.Builder builder;
+    private AlertDialog interactingDialog;
+
+    public void tipClick() {
+        builder.setTitle("是否创建变量？");
+        builder.setMessage("等待中...");
+        builder.setCancelable(false);
+        interactingDialog = builder.create();
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
+            interactingDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
+        } else {
+            interactingDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_PHONE);
+        }
+        interactingDialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+        interactingDialog.show();
+    }
+
+    public void cancelInteractingDialog() {
+        interactingDialog.cancel();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
+        self = this;
 
-//        Socket sck = null;
+        builder = new AlertDialog.Builder(this);
 
         CreateSocket t = new CreateSocket();
         t.start();
@@ -106,8 +130,9 @@ public class MainActivity extends AppCompatActivity {
         // init voice hints
         MediaPlayer startMediaPlayer = MediaPlayer.create(this, R.raw.start);
         MediaPlayer endMediaPlayer = MediaPlayer.create(this, R.raw.end);
+        MediaPlayer yesMediaPlayer = MediaPlayer.create(this, R.raw.yes);
 
-        keyutil = new KeyUtil(this, "RecordKey", startMediaPlayer, endMediaPlayer);
+        keyutil = new KeyUtil(this, "RecordKey", startMediaPlayer, endMediaPlayer, yesMediaPlayer);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -119,11 +144,12 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
               @Override
               public void onClick(View v) {
-                  Thread t = new ServerThread();
-                  t.start();
+//                  Thread t = new ServerThread();
+//                  t.start();
+//                  showWaitingDialog();
+                  tipClick();
               }
           });
-
 
         //实例并初始化TTS对象
         mTextToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {

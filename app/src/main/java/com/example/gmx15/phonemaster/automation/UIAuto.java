@@ -13,6 +13,7 @@ import android.util.Pair;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.example.gmx15.phonemaster.accessibility_service.MyAccessibilityService;
+import com.example.gmx15.phonemaster.utilities.MyThread;
 
 import org.json.JSONException;
 
@@ -21,7 +22,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
@@ -37,6 +37,7 @@ import java.util.concurrent.Callable;
 import java.util.function.LongUnaryOperator;
 
 public class UIAuto {
+
     public static class Action{
         public static final int CLICK = 1;
         public static final int LONG_CLICK = 2;
@@ -44,9 +45,11 @@ public class UIAuto {
         public static final int ENTER_TEXT = 4;
         public static final int GLOBAL_BACK = 5;
 
+
         public MergedNode actionNode;
         public int actionType;
         public Object actionAttr;
+
 
         public Action(MergedNode node, int type, Object attr){
             actionNode = node;
@@ -401,6 +404,7 @@ public class UIAuto {
             int crt_page_index = fitResult != null? fitResult.first.first.first.pageBelongTo.pageIndex: -1;
 
             Log.i("res", String.format(Locale.CHINA, "want %d-%d, actual %d-%d", target_page_index, target_state_index, crt_page_index, crt_state_index));
+
             if(target_page_index == crt_page_index && target_state_index == crt_state_index) {
                 actedActions.add(crtAction);
             }
@@ -649,6 +653,7 @@ public class UIAuto {
                 return false;
             }
             List<UIAuto.Action> actions = UIAuto.findActionListFromSrcToTarget(res.first.first.second, targetNode, visitedActions);
+
             Pair<List<UIAuto.Action>, Boolean> execRes = UIAuto.execActions(actions, new ArrayList<String>(), null, 1000, targetNode);
             if (execRes.second) {
                 return true;

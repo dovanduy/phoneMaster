@@ -169,7 +169,6 @@ public class FitResultRegion {
     }
 
 
-
     AccessibilityNodeInfoRecord regionRoot;
     Map<AccessibilityNodeInfoRecord, List<FitResultRegion>> dynamicEntranceToSubRegions;
     MergedRegion correspondingMergedRegion;

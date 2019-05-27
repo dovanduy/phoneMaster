@@ -3,7 +3,6 @@ package com.example.gmx15.phonemaster.recording;
 import android.accessibilityservice.AccessibilityService;
 import android.graphics.Rect;
 import android.speech.tts.TextToSpeech;
-import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import org.json.JSONArray;
