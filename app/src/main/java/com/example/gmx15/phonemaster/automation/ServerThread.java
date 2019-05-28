@@ -67,7 +67,7 @@ public class ServerThread extends Thread {
                     UIALServer.self.packageToActivity.get(AccessibilityNodeInfoRecord.root.getPackageName().toString()));*/
 
             if(listFromFile != null) {
-                // 跳转到对应到页面
+                // 跳转到对应的app
                 boolean jumpToApp = UIAuto.jumpToApp(listFromFile.first.get(0).actionNode.packageName);
                 if(!jumpToApp){
                     return;

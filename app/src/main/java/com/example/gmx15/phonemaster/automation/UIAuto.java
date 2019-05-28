@@ -6,14 +6,15 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 import android.util.Pair;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.example.gmx15.phonemaster.MainActivity;
 import com.example.gmx15.phonemaster.accessibility_service.MyAccessibilityService;
-import com.example.gmx15.phonemaster.utilities.MyThread;
 
 import org.json.JSONException;
 
@@ -24,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,9 +32,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.Callable;
-import java.util.function.LongUnaryOperator;
 
 public class UIAuto {
 
@@ -379,6 +376,9 @@ public class UIAuto {
             Pair<Pair<Pair<MergedState, FitResultRegion>, Float>, Map<AccessibilityNodeInfoRecord, Pair<FitResultRegion, MergedNode>>> fitResult = null;
             while (System.currentTimeMillis() - startTime <= maxWaitTimeMs && !reachedTargetNode) {
                 AccessibilityNodeInfoRecord.buildTree();
+                if(AccessibilityNodeInfoRecord.root == null){
+                    return new Pair<>(actedActions, false);
+                }
                 String crtPackageName = AccessibilityNodeInfoRecord.root.getPackageName().toString();
                 MergedApp app = MyAccessibilityService.self.packageToMergedApp.get(crtPackageName);
                 List<MergedNode> oneNodeList = new ArrayList<>();
@@ -437,6 +437,12 @@ public class UIAuto {
                 // todo 在可以滚动的列表中如果找不到对应到元素到话，是不是应该不断进行滚动搜索
                 String crtContextValue = inputContexts.get(0);
 
+                if(crtContextValue.contains("*")) {
+                    Log.i("DEBUG:","param reached!");
+                    MainActivity.self.mTextToSpeech.stop();
+                    MainActivity.self.mTextToSpeech.speak("参数是", TextToSpeech.QUEUE_FLUSH, null);
+                    MainActivity.startRecognizer();
+                }
 
                 for(AccessibilityNodeInfoRecord uiNode: filteredNodes){
                     if(uiNode.getAllTexts().contains(crtContextValue)){
@@ -461,7 +467,7 @@ public class UIAuto {
                 return new Pair<>(actedActions, false);
             }
 
-            if(crtAction.actionType == Action.ENTER_TEXT){
+            if(crtAction.actionType == Action.ENTER_TEXT && !contextRemoveEveryStep){
                 if(((String)(crtAction.actionAttr)).length() > 0) {
                     String textToEnter = null;
                     if (contexts.size() > 0) {

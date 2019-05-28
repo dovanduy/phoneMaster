@@ -90,7 +90,7 @@ public class Recorder {
         if (!path.equals("") && layout != null ) {
             Log.i("RecordPath", path);
             String res = layout.toString();
-//            savePath(path + "\r\n" + stepParams, layout.toString());
+            savePath(path + "\r\n" + stepParams, layout.toString());
             stepId += 1;
 //            Thread t = new MyThread(res, sck);
 //            t.start();

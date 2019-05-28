@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import android.util.Log;
 
+import com.example.gmx15.phonemaster.automation.ServerThread;
 import com.example.gmx15.phonemaster.recording.Recorder;
 import com.example.gmx15.phonemaster.utilities.CreateSocket;
 import com.example.gmx15.phonemaster.utilities.KeyUtil;
@@ -144,10 +145,8 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
               @Override
               public void onClick(View v) {
-//                  Thread t = new ServerThread();
-//                  t.start();
-//                  showWaitingDialog();
-                  tipClick();
+                  Thread t = new ServerThread();
+                  t.start();
               }
           });
 

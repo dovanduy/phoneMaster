@@ -2,6 +2,7 @@ package com.example.gmx15.phonemaster.automation;
 
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
@@ -25,6 +26,7 @@ public class AccessibilityNodeInfoRecord {
         MyAccessibilityService server = MyAccessibilityService.self;
 
         AccessibilityNodeInfo root = server.getRootInActiveWindow();
+
         AccessibilityNodeInfoRecord.root = new AccessibilityNodeInfoRecord(root, null, 0);
         AccessibilityNodeInfoRecord.root.ignoreUselessChild(false);
         removeInvisibleChildrenInList(AccessibilityNodeInfoRecord.root);
